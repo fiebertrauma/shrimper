@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shrimper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              whimsy: ['"Comic Sans MS"', '"Comic Sans"', "cursive"],
+            },
+            animation: {
+              bob: "bob 2.8s ease-in-out infinite",
+              drift: "drift 10s linear infinite",
+              wobble: "wobble 1.4s ease-in-out infinite",
+            },
+            keyframes: {
+              bob: {
+                "0%, 100%": { transform: "translateY(0) rotate(-1deg)" },
+                "50%": { transform: "translateY(-10px) rotate(2deg)" },
+              },
+              drift: {
+                "0%": { transform: "translateX(-25vw)" },
+                "100%": { transform: "translateX(125vw)" },
+              },
+              wobble: {
+                "0%, 100%": { transform: "rotate(-2deg)" },
+                "50%": { transform: "rotate(2deg)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Comic Sans MS", "Comic Sans", cursive;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top_left,#fef08a_0,#fda4af_30%,#93c5fd_62%,#bbf7d0_100%)] text-slate-950">
+    <main class="relative flex min-h-dvh items-start justify-center px-2 py-3 sm:min-h-screen sm:items-center sm:px-6 sm:py-5">
+      <div class="pointer-events-none absolute inset-x-0 top-4 hidden animate-drift whitespace-nowrap text-4xl font-black opacity-45 sm:block">
+        shrimp? shrimp? shrimp? shrimp?
+      </div>
+
+      <section class="mt-5 w-full max-w-5xl rounded-[1.25rem] border-[3px] border-dashed border-fuchsia-700 bg-white/75 p-3 shadow-[5px_5px_0_#0f172a] backdrop-blur sm:mt-0 sm:rounded-[2rem] sm:border-4 sm:p-8 sm:shadow-[12px_12px_0_#0f172a]">
+        <div class="grid items-center gap-4 sm:gap-6 lg:grid-cols-[1fr_.9fr]">
+          <div class="space-y-3 sm:space-y-5">
+            <p class="inline-flex max-w-full animate-wobble rounded-full border-2 border-slate-950 bg-lime-200 px-3 py-2 text-[11px] font-black uppercase leading-tight shadow-[3px_3px_0_#0f172a] sm:px-4 sm:text-sm sm:shadow-[4px_4px_0_#0f172a]">
+              official shrimp inspection tent
+            </p>
+
+            <div class="space-y-2 sm:space-y-3">
+              <h1 class="text-3xl font-black leading-none sm:text-6xl">
+                Are you a shrimp?
+              </h1>
+              <p class="text-base font-bold leading-snug text-slate-800 sm:text-xl">
+                Answer carefully. The tide pool is taking notes.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 sm:gap-3">
+              <button
+                id="yesButton"
+                type="button"
+                class="min-h-14 rounded-2xl border-[3px] border-slate-950 bg-orange-300 px-4 py-3 text-xl font-black shadow-[4px_4px_0_#0f172a] transition hover:-rotate-2 hover:scale-[1.03] sm:min-h-16 sm:border-4 sm:px-5 sm:py-4 sm:text-2xl sm:shadow-[6px_6px_0_#0f172a]"
+              >
+                Yes
+              </button>
+              <button
+                id="noButton"
+                type="button"
+                class="min-h-14 rounded-2xl border-[3px] border-slate-950 bg-cyan-200 px-4 py-3 text-xl font-black shadow-[4px_4px_0_#0f172a] transition hover:rotate-2 hover:scale-[1.03] sm:min-h-16 sm:border-4 sm:px-5 sm:py-4 sm:text-2xl sm:shadow-[6px_6px_0_#0f172a]"
+              >
+                No
+              </button>
+            </div>
+
+            <p id="status" class="rounded-2xl border-[3px] border-slate-950 bg-yellow-100 p-3 text-sm font-black leading-snug shadow-[4px_4px_0_#0f172a] sm:border-4 sm:text-xl sm:shadow-[5px_5px_0_#0f172a]">
+              Waiting for a tiny official answer...
+            </p>
+          </div>
+
+          <figure class="relative mx-auto w-full max-w-[18rem] sm:max-w-none">
+            <div class="mb-2 inline-flex rotate-[-2deg] rounded-xl border-[3px] border-slate-950 bg-white px-2 py-1.5 text-xs font-black shadow-[3px_3px_0_#0f172a] sm:absolute sm:-left-4 sm:-top-4 sm:z-10 sm:mb-0 sm:rotate-[-8deg] sm:rounded-2xl sm:border-4 sm:px-3 sm:py-2 sm:text-lg sm:shadow-[4px_4px_0_#0f172a]">
+              live shrimp witness
+            </div>
+            <img
+              id="shrimpGif"
+              alt="A randomly selected shrimp GIF"
+              class="aspect-square max-h-[34dvh] w-full rounded-[1.25rem] border-[3px] border-slate-950 bg-rose-100 object-cover shadow-[5px_5px_0_#0f172a] sm:max-h-none sm:rounded-[2rem] sm:border-4 sm:shadow-[10px_10px_0_#0f172a]"
+            />
+          </figure>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const shrimpGif = document.querySelector("#shrimpGif");
+      const statusEl = document.querySelector("#status");
+      const yesButton = document.querySelector("#yesButton");
+      const noButton = document.querySelector("#noButton");
+
+      async function loadShrimp() {
+        try {
+          const response = await fetch("./api/shrimp", { cache: "no-store" });
+          const data = await response.json();
+          shrimpGif.src = data.src;
+        } catch {
+          statusEl.textContent = "The shrimp projector is shy today.";
+        }
+      }
+
+      function go(choice) {
+        yesButton.disabled = true;
+        noButton.disabled = true;
+        statusEl.textContent =
+          choice === "yes"
+            ? "Yes recorded. A tiny stamp is warming up..."
+            : "No recorded. The committee is squinting...";
+        window.setTimeout(() => {
+          window.location.href = `./verdict?choice=${choice}&ticket=${Date.now() % 10000}`;
+        }, 650);
+      }
+
+      yesButton.addEventListener("click", () => go("yes"));
+      noButton.addEventListener("click", () => go("no"));
+
+      loadShrimp();
+    </script>
+  </body>
+</html>

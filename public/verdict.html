@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shrimper Verdict</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              whimsy: ['"Comic Sans MS"', '"Comic Sans"', "cursive"],
+            },
+            animation: {
+              bob: "bob 2.8s ease-in-out infinite",
+              stamp: "stamp 700ms cubic-bezier(.2,1.35,.2,1) both",
+            },
+            keyframes: {
+              bob: {
+                "0%, 100%": { transform: "translateY(0) rotate(-1deg)" },
+                "50%": { transform: "translateY(-10px) rotate(2deg)" },
+              },
+              stamp: {
+                "0%": { opacity: "0", transform: "scale(2.4) rotate(-18deg)" },
+                "100%": { opacity: "1", transform: "scale(1) rotate(-8deg)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Comic Sans MS", "Comic Sans", cursive;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen overflow-x-hidden bg-[linear-gradient(135deg,#86efac,#fef08a_34%,#f0abfc_68%,#93c5fd)] text-slate-950">
+    <main class="flex min-h-dvh items-start justify-center px-2 py-3 sm:min-h-screen sm:items-center sm:px-8 sm:py-5">
+      <section class="grid w-full max-w-6xl items-start gap-4 sm:gap-6 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
+        <figure class="relative order-2 mx-auto w-full max-w-[18rem] sm:max-w-sm lg:order-1 lg:max-w-none">
+          <div
+            id="stamp"
+            class="mb-2 inline-flex max-w-full rotate-[-2deg] rounded-xl border-[3px] border-red-700 bg-red-100 px-2 py-1.5 text-center text-sm font-black uppercase leading-none text-red-700 shadow-[3px_3px_0_#0f172a] sm:absolute sm:-right-2 sm:top-2 sm:z-10 sm:mb-0 sm:max-w-none sm:animate-stamp sm:rotate-0 sm:rounded-2xl sm:border-4 sm:px-5 sm:py-3 sm:text-3xl sm:shadow-[6px_6px_0_#0f172a]"
+          >
+            pending
+          </div>
+          <img
+            id="shrimpGif"
+            alt="The official shrimp witness"
+            class="aspect-square max-h-[34dvh] w-full animate-bob rounded-[1.25rem] border-[3px] border-slate-950 bg-white object-cover shadow-[5px_5px_0_#0f172a] sm:max-h-none sm:rounded-[2rem] sm:border-4 sm:shadow-[12px_12px_0_#0f172a]"
+          />
+        </figure>
+
+        <article class="order-1 rounded-[1.25rem] border-[3px] border-dashed border-slate-950 bg-white/78 p-3 shadow-[5px_5px_0_#0f172a] backdrop-blur sm:rounded-[2rem] sm:border-4 sm:p-8 sm:shadow-[12px_12px_0_#0f172a] lg:order-2">
+          <p id="ticket" class="inline-flex max-w-full rounded-2xl border-2 border-slate-950 bg-cyan-200 px-3 py-2 text-[11px] font-black uppercase leading-tight shadow-[3px_3px_0_#0f172a] sm:rounded-full sm:px-4 sm:text-sm">
+            case file
+          </p>
+          <h1 id="headline" class="mt-3 break-words text-3xl font-black leading-none sm:mt-5 sm:text-6xl">
+            Verdict loading...
+          </h1>
+          <p id="bodyText" class="mt-3 text-base font-black leading-snug text-slate-800 sm:mt-5 sm:text-2xl">
+            A very serious machine is reading a very silly clipboard.
+          </p>
+          <p id="receipt" class="mt-3 rounded-2xl border-[3px] border-slate-950 bg-yellow-100 p-3 text-sm font-black leading-snug shadow-[4px_4px_0_#0f172a] sm:mt-6 sm:rounded-3xl sm:border-4 sm:p-4 sm:text-lg sm:shadow-[6px_6px_0_#0f172a]">
+            receipt initializing...
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const choice = params.get("choice") === "no" ? "no" : "yes";
+      const ticket = params.get("ticket") || Math.floor(Math.random() * 9999).toString();
+
+      const shrimpGif = document.querySelector("#shrimpGif");
+      const stamp = document.querySelector("#stamp");
+      const headline = document.querySelector("#headline");
+      const bodyText = document.querySelector("#bodyText");
+      const ticketEl = document.querySelector("#ticket");
+      const receipt = document.querySelector("#receipt");
+
+      const verdicts = {
+        yes: {
+          stamp: "approved-ish",
+          headline: "Congratulations, shrimp citizen.",
+          body: "Your honesty has been notarized by a damp clipboard.",
+          receipt: "Findings: 11 little vibes, 3 grains of dramatic seasoning, 1 legally binding wink. Status: shrimp enough.",
+        },
+        no: {
+          stamp: "denied",
+          headline: "Your no has been gently rejected.",
+          body: "The committee found your denial chewy, evasive, and suspiciously small.",
+          receipt: "Findings: 7 suspicious pauses, 2 wobbly excuses, 1 emergency napkin. Status: shrimp until proven otherwise.",
+        },
+      };
+
+      async function loadShrimp() {
+        try {
+          const response = await fetch("./api/shrimp", { cache: "no-store" });
+          const data = await response.json();
+          shrimpGif.src = data.src;
+        } catch {
+          shrimpGif.alt = "The shrimp witness failed to appear.";
+        }
+      }
+
+      function applyVerdict() {
+        const verdict = verdicts[choice];
+        stamp.textContent = verdict.stamp;
+        headline.textContent = verdict.headline;
+        bodyText.textContent = verdict.body;
+        ticketEl.textContent = `case #${ticket}`;
+        receipt.textContent = verdict.receipt;
+      }
+
+      loadShrimp();
+      applyVerdict();
+    </script>
+  </body>
+</html>
