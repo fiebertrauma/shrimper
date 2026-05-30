@@ -7,6 +7,9 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOST: 0.0.0.0
+      TRUST_PROXY: 1
+      API_RATE_LIMIT_WINDOW_MS: 60000
+      API_RATE_LIMIT_MAX: 30
     expose:
       - "3000"
     healthcheck:

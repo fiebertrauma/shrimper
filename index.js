@@ -1,6 +1,7 @@
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const express = require("express");
+const { rateLimit } = require("express-rate-limit");
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -8,9 +9,22 @@ const host = process.env.HOST || "0.0.0.0";
 const rootDir = __dirname;
 const shrimpDir = path.join(rootDir, "shrimps");
 const publicDir = path.join(rootDir, "public");
+const apiRateLimitWindowMs = Number(process.env.API_RATE_LIMIT_WINDOW_MS || 60_000);
+const apiRateLimitMax = Number(process.env.API_RATE_LIMIT_MAX || 30);
+const trustProxy = process.env.TRUST_PROXY === undefined ? 1 : Number(process.env.TRUST_PROXY);
 
-app.set("trust proxy", true);
+app.set("trust proxy", trustProxy);
 app.disable("x-powered-by");
+
+const apiLimiter = rateLimit({
+  windowMs: apiRateLimitWindowMs,
+  limit: apiRateLimitMax,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: {
+    error: "Too many shrimp requests. Let the tiny clipboard cool down.",
+  },
+});
 
 app.use(
   "/shrimps",
@@ -27,7 +41,7 @@ app.use(
   }),
 );
 
-app.get("/api/shrimp", async (_req, res, next) => {
+app.get("/api/shrimp", apiLimiter, async (_req, res, next) => {
   try {
     const files = await fs.readdir(shrimpDir);
     const gifs = files.filter((file) => file.toLowerCase().endsWith(".gif"));
