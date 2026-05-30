@@ -13,11 +13,40 @@ app.set("trust proxy", true);
 app.disable("x-powered-by");
 
 app.use(
+  "/shrimps",
+  express.static(shrimpDir, {
+    immutable: true,
+    maxAge: "1d",
+  }),
+);
+
+app.use(
   express.static(publicDir, {
     extensions: ["html"],
     maxAge: 0,
   }),
 );
+
+app.get("/api/shrimp", async (_req, res, next) => {
+  try {
+    const files = await fs.readdir(shrimpDir);
+    const gifs = files.filter((file) => file.toLowerCase().endsWith(".gif"));
+
+    if (gifs.length === 0) {
+      res.status(404).json({ error: "No shrimp GIFs found." });
+      return;
+    }
+
+    const file = gifs[Math.floor(Math.random() * gifs.length)];
+    res.json({ src: `shrimps/${encodeURIComponent(file)}`, count: gifs.length });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/healthz", (_req, res) => {
+  res.json({ ok: true });
+});
 
 app.use((req, res) => {
   if (req.accepts("html")) {
